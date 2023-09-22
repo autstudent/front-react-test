@@ -1,0 +1,35 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: front-javascript
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: front-javascript-dev
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: front-javascript:develop
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/autstudent/front-react-test.git
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: nodejs:latest
+        namespace: openshift
+    type: Source
+  successfulBuildsHistoryLimit: 5
