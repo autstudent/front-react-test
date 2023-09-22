@@ -1,0 +1,49 @@
+users.htpasswd
+
+## FRONTEND
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+
+# production
+build
+
+# misc
+/frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+## FRONTEND TESTING
+
+# dependencies
+/frontend/testing/node_modules
+/frontend/testing/.pnp
+/frontend/testing/.pnp.js
+
+# testing
+/frontend/testing//coverage
+
+# production
+/frontend/testing/build
+
+# misc
+/frontend/testing/.DS_Store
+/frontend/testing/.env.local
+/frontend/testing/.env.development.local
+/frontend/testing/.env.test.local
+/frontend/testing/.env.production.local
+
+/frontend/testing/npm-debug.log*
+/frontend/testing/yarn-debug.log*
+/frontend/testing/yarn-error.log*
