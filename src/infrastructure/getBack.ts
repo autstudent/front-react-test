@@ -14,12 +14,12 @@ export const getBack = async (
   });
 
   const responseFailed: ResponseBack = {
-      team: "",
+      team: "ERROR",
       uptime: "false",
       versions: [
         {
-          name: "Backend Connection Error...",
-          tag: "00000000",
+          name: "Track ID - 1",
+          tag: "0123456789",
           success: false
         }
       ]

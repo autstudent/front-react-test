@@ -1,0 +1,90 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: argocd
+  namespace: openshift-gitops
+spec:
+  repo:
+    mountsatoken: true
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    sidecarContainers:
+    - command:
+      - /var/run/argocd/argocd-cmp-server
+      env:
+      - name: VAULT_CACERT
+        value: /app/config/tls/{{ in_vault_endpoints[in_vault_endpoint][region] }}
+      - name: HELM_CACHE_HOME
+        value: /tmp/helm/cache
+      - name: HELM_CONFIG_HOME
+        value: /tmp/helm/config
+      - name: HELM_DATA_HOME
+        value: /tmp/helm/data
+      image: caas-images-registry-stable-local.perseo.live.es.nextgen.igrupobbva/argocd/releases/argocd-vault-plugin:1.16.1
+      name: avp
+      resources: {}
+      securityContext:
+        runAsNonRoot: true
+      volumeMounts:
+      - mountPath: /var/run/argocd
+        name: var-files
+      - mountPath: /home/argocd/cmp-server/plugins
+        name: plugins
+      - mountPath: /tmp
+        name: tmp
+      - mountPath: /app/config/tls
+        name: tls-certs
+      - mountPath: /home/argocd/cmp-server/config
+        name: hazelcast-platform-operator
+    volumes:
+    - configMap:
+        name: argocd-vault-helm-plugin
+      name: argocd-vault-helm-plugin
+
+---
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: argocd-vault-helm-plugin
+    namespace: openshift-gitops
+  data:
+    plugin.yaml: |
+      ---
+      apiVersion: argoproj.io/v1alpha1
+      kind: ConfigManagementPlugin
+      metadata:
+        name: argocd-vault-plugin-helm
+      spec:
+        allowConcurrency: true
+        discover:
+          find:
+            command:
+              - sh
+              - "-c"
+              - "find . -name 'Chart.yaml' && find . -name 'values.yaml'"
+        init:
+          command:
+            - bash
+            - "-c"
+            - |
+              echo "helm template $ARGOCD_APP_NAME -n $ARGOCD_APP_NAMESPACE ${ARGOCD_ENV_helm_args} -f app_helm_variables.yaml . --include-crds | argocd-vault-plugin generate -s ${ARGOCD_ENV_AVP_SECRET:-{{ argocd_consumer_namespace }}:{{ argocd_instance_avp_secret_name_prefix }}-{{ argocd_consumer_instance_default_avp_credentials }}} -" >> /tmp/variables.log
+              helm dependency update
+
+        generate:
+          command:
+            - bash
+            - "-c"
+            - |
+             echo ${ARGOCD_ENV_helm_values} >> app_helm_variables.yaml
+             helm template $ARGOCD_APP_NAME -n $ARGOCD_APP_NAMESPACE  ${ARGOCD_ENV_helm_args} -f app_helm_variables.yaml . --include-crds | argocd-vault-plugin generate -s ${ARGOCD_ENV_AVP_SECRET:-{{ argocd_consumer_namespace }}:{{ argocd_instance_avp_secret_name_prefix }}-{{ argocd_consumer_instance_default_avp_credentials }}} -
+
+        lockRepo: false

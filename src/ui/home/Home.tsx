@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { bind } from '../../utils/bind';
 import styles from './Home.module.css';
-import logo from '../../logo.svg';
 import { ResponseBack } from '../../domain/ResponseBack';
 import { getBack } from '../../infrastructure/getBack';
 
@@ -15,12 +14,12 @@ export const Home: React.FunctionComponent<Props> = () => {
     const videoURL = process.env.REACT_APP_videoURL || 'https://youtube.com/meloinvento/'
 
     const jumpLogTest: ResponseBack = {
-        team: "",
+        team: "TEAM",
         uptime: "false",
         versions: [
           {
-            name: "Backend Connection Error...",
-            tag: "00000000",
+            name: "Track ID - 1",
+            tag: "0123456789",
             success: false
           }
         ]
@@ -30,7 +29,6 @@ export const Home: React.FunctionComponent<Props> = () => {
 
     const [tags, setTags] = useState({ ...jumpLogTest });
     const [finalMessage, setFinalMessage] = useState("");
-    const [congratsMessage, setCongratsMessage] = useState("");
 
     const randomNumberInRange = (min: number, max: number) => {
         return Math.floor(Math.random() 
@@ -54,8 +52,7 @@ export const Home: React.FunctionComponent<Props> = () => {
                         item.tag = randomNumberInRange(11111111,99999999).toString()
                     }
                     if (item.name === "Track ID - 3" && item.success) {
-                        setFinalMessage(videoURL)
-                        setCongratsMessage("&#128640; Congratulations &#128640;")
+                        setFinalMessage("Congratulations!! Visit " + videoURL)
                     }
                 }
             )
@@ -87,7 +84,7 @@ export const Home: React.FunctionComponent<Props> = () => {
       <body className={cx('App-body')}>
         <span className={cx('App-body-empty')}></span>
         <span className={cx('App-body-team')}>    
-            <img src={logo} className={cx('App-logo')} alt="logo" />
+            <img src='logo192.png' className={cx('App-logo')} alt="logo" />
             <h1>TEAM</h1>
             <h2>{tags.team}</h2>
         </span>
@@ -97,10 +94,6 @@ export const Home: React.FunctionComponent<Props> = () => {
         <span className={cx('App-body-empty')}></span>
         </body>
         <span className={cx('App-video-url')}>
-            <h2>
-                {congratsMessage}
-            </h2>
-            <br></br>
             <h2>
                 {finalMessage}
             </h2>
